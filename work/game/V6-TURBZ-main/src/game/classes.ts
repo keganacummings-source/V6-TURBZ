@@ -1,5 +1,5 @@
 import type { RaceId, SkillId, TypeId } from "./content";
-import { STARTER_KITS } from "./class-kits";
+import { KIT_MOVES, STARTER_KITS } from "./class-kits";
 
 export type StatKey = "hp" | "might" | "arcana" | "guard" | "speed" | "crit" | "haste" | "regen" | "leech" | "kyo" | "xp" | "affinity";
 export type StatMods = Partial<Record<StatKey, number>>;
@@ -55,7 +55,7 @@ export const CLASSES = def([
   { id: "warden", name: "Bulwark", type: "earth", role: "Tank", focus: "Defense", fightStyle: "melee", sprite: one("warrior:warden"), blurb: "A wall that walks.", specialty: "Takes less damage than anyone. Grinds Mining", stats: { guard: 38, hp: 10, affinity: 5, speed: -10, haste: -5 }, passive: "Iron Bastion (R): plant the shield, take 80% less damage and send half of every blow back.", legacyPassive: "Stands firm: heavy hits are blunted by a raised shield.", gimmick: "bastion", perks: ["iron_footing", "shield_echo"], starterMoves: STARTER_KITS.warden, signature: "shieldbash", aptitudes: { mining: 2.5 } },
   { id: "spellweaver", name: "Spellweaver", type: "electric", role: "Caster", focus: "Spell Power", fightStyle: "mixed", sprite: one("warrior:spellweaver"), blurb: "Every word is a weapon.", specialty: "The hardest-hitting spells in the veil. Grinds Magic", stats: { arcana: 42, affinity: 5, hp: -15, guard: -10 }, passive: "Overload (R): for 10s every spell forks into two extra bolts.", legacyPassive: "Long casts crackle harder; the body is paper.", gimmick: "overload", perks: ["arc_memory", "static_skin"], starterMoves: STARTER_KITS.spellweaver, signature: "arcbolt", aptitudes: { magic: 2.5 } },
   { id: "spiritbinder", name: "Spirit Caller", type: "spirit", role: "Support", focus: "Summoning", fightStyle: "mixed", sprite: one("warrior:spiritbinder"), blurb: "Keeps a choir of the dead at their heel.", specialty: "Six spirits out at once. Grinds Ghostkeeping", stats: { regen: 20, arcana: 5, affinity: 5, might: -15 }, immune: ["gloom"], passive: "Choir Lead (R): an aura that makes your spirits follow your mouse and pulse the foes they touch.", legacyPassive: "A full choir follows: six spirits out at once, and ghostkeeping comes fast.", gimmick: "spiritlead", perks: ["choir_bond", "grave_chorus"], starterMoves: STARTER_KITS.spiritbinder, signature: "soulmend", aptitudes: { ghostkeeping: 2.6 }, outMax: 6 },
-  { id: "nightblade", name: "Nightblade", type: "void", role: "Mobility", focus: "Critical Hits", fightStyle: "melee", sprite: one("warrior:nightblade"), blurb: "Gone before the blade lands.", specialty: "Crits more often than any class. Grinds Evasion", stats: { crit: 22, speed: 8, affinity: 5, hp: -15, guard: -12 }, passive: "Shadow Cat (R): turn into a black cat with 4x movement speed. The first hit after you leave cat form always crits double.", legacyPassive: "Every step is a feint. Armor is for the slow.", gimmick: "cat", perks: ["nine_lives", "pounce"], starterMoves: STARTER_KITS.nightblade, signature: "shadowstrike", aptitudes: { evasion: 2.5 } },
+  { id: "nightblade", name: "Nightblade", type: "void", role: "Mobility", focus: "Critical Hits", fightStyle: "melee", sprite: one("warrior:nightblade"), blurb: "Gone before the blade lands.", specialty: "Crits more often than any class. Grinds Evasion", stats: { crit: 22, speed: 8, affinity: 5, hp: -15, guard: -12 }, passive: "Shadow Cat (R): turn into a black cat with 4x movement speed. The first hit after you leave cat form deals double damage.", legacyPassive: "Every step is a feint. Armor is for the slow.", gimmick: "cat", perks: ["nine_lives", "pounce"], starterMoves: STARTER_KITS.nightblade, signature: "shadowstrike", aptitudes: { evasion: 2.5 } },
   { id: "pathfinder", name: "Pathfinder", type: "air", role: "Marksman", focus: "Marksmanship", fightStyle: "ranged", sprite: one("warrior:pathfinder"), blurb: "Reads the wind, then the throat.", specialty: "Long-range volleys that land true. Grinds Hunting", stats: { might: 22, crit: 6, affinity: 5, guard: -10 }, immune: ["root"], passive: "Hawk Volley (R): for 8s an arrow flies every half second at the foe nearest your mouse.", legacyPassive: "Never pinned: roots slide off a light step.", gimmick: "volley", perks: ["eagle_eye", "trail_sense"], starterMoves: STARTER_KITS.pathfinder, signature: "piercingvolley", aptitudes: { hunting: 2.5 } },
   { id: "ironpalm", name: "Ironpalm", type: "normal", role: "Bruiser", focus: "Tempo", fightStyle: "melee", sprite: one("warrior:ironpalm"), blurb: "Fists tempered by a thousand mornings.", specialty: "Verses come back faster than anyone's. Grinds Physical", stats: { haste: 28, might: 5, regen: 10, affinity: 5, arcana: -20 }, immune: ["sleep"], passive: "Hundred Fists (R): plant your feet and strike everything around you ten times a second.", legacyPassive: "Discipline: never dozes, always breathing.", gimmick: "flurry", perks: ["iron_breath", "palm_chain"], starterMoves: STARTER_KITS.ironpalm, signature: "hundredpalm", aptitudes: { physical: 2.5 } },
   { id: "bloodrager", name: "Bloodrager", type: "fire", role: "Bruiser", focus: "Raw Power", fightStyle: "melee", sprite: one("warrior:bloodrager"), blurb: "Pain is fuel.", specialty: "The heaviest weapon hits in the veil. Grinds Skinning", stats: { might: 42, affinity: 5, hp: 5, guard: -25 }, immune: ["gloom"], passive: "Trophy Skins (R): wear the hide of a boss you have killed. Every boss slain joins your catalog.", legacyPassive: "Fear never takes; every cut feeds the rage.", gimmick: "bossform", perks: ["trophy_hunger", "red_mist"], starterMoves: STARTER_KITS.bloodrager, signature: "rampage", aptitudes: { skinning: 2.5 } },
@@ -130,6 +130,19 @@ function applyCry() {
   c.fightStyle = cryConfig.fightStyle;
   c.stats = { ...cryConfig.lean };
   (CLASS_RACE as Record<string, RaceId>).cryinggirl = TYPE_RACE[cryConfig.type] ?? "vesper";
+  // Her verses take her element, and her attacks take her style (melee cuts, ranged shots or spells).
+  const form = cryConfig.fightStyle === "melee" ? "melee" : cryConfig.fightStyle === "ranged" ? "ranged" : "spell";
+  for (const m of KIT_MOVES) {
+    if (m.cls !== "cryinggirl") continue;
+    const base = (m as { base?: { type: string; form?: string; reach?: number; fx?: string } }).base ??= { type: m.type, form: m.form, reach: m.reach, fx: m.fx };
+    m.type = cryConfig.type;
+    const attack = ["strike", "heavy", "channel"].includes(m.tactic);
+    if (!attack) continue;
+    if (cryConfig.fightStyle === "mixed") { m.form = base.form; m.reach = base.reach; m.fx = base.fx; continue; }
+    m.form = form;
+    m.reach = form === "melee" ? Math.min(60, m.nova ?? 56) : base.reach;
+    m.fx = form === "melee" && m.nova ? undefined : base.fx;
+  }
 }
 export function getCryingConfig(): CryingConfig {
   return cryConfig;
@@ -164,7 +177,7 @@ const NEW_PERKS: PerkDef[] = [
   { id: "choir_bond", name: "Choir Bond", cls: "spiritbinder", about: "Your gimmick lasts 30% longer.", stats: { regen: 8 }, hook: { kind: "gimmickTime", v: 30 } },
   { id: "grave_chorus", name: "Grave Chorus", cls: "spiritbinder", about: "Each kill heals you for 4% of your health.", stats: { arcana: 4 }, hook: { kind: "killHeal", v: 4 } },
   { id: "nine_lives", name: "Nine Lives", cls: "nightblade", about: "14% chance to slip any hit entirely.", stats: { speed: 4 }, hook: { kind: "dodge", v: 14 } },
-  { id: "pounce", name: "Pounce", cls: "nightblade", about: "+35% damage against foes at full health.", stats: { crit: 4 }, hook: { kind: "firstStrike", v: 35 } },
+  { id: "pounce", name: "Ambush", cls: "nightblade", about: "+35% damage against foes at full health.", stats: { crit: 4 }, hook: { kind: "firstStrike", v: 35 } },
   { id: "eagle_eye", name: "Eagle Eye", cls: "pathfinder", about: "+25% damage to foes more than 120px away.", stats: { crit: 3 }, hook: { kind: "farPower", v: 25 } },
   { id: "trail_sense", name: "Trail Sense", cls: "pathfinder", about: "+15% movement speed while in a fight.", stats: { might: 4 }, hook: { kind: "combatSpeed", v: 15 } },
   { id: "iron_breath", name: "Iron Breath", cls: "ironpalm", about: "Every hit you land trims 0.15s off all verse cooldowns.", stats: { haste: 4 }, hook: { kind: "hitHaste", v: 15 } },

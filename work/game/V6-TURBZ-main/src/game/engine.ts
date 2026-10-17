@@ -3100,6 +3100,12 @@ export class TurbzGame {
 	autoCare(dt) {
 		const save = this.save;
 		const hp = save.hp / Math.max(1, this.maxHp());
+		// Asleep or rooted: mash to break free, like a player would.
+		const held = this.status.find((s) => (s.id === "sleep" || s.id === "root") && s.t > 0);
+		if (held) {
+			this.mashT = (this.mashT ?? 0) - dt;
+			if (this.mashT <= 0) { this.mashT = 0.15; struggle(this.status, held.id === "sleep" ? 0.3 : 0.18); }
+		}
 		this.autoCareT = (this.autoCareT ?? 0) - dt;
 		this.potionCd = Math.max(0, (this.potionCd ?? 0) - dt);
 		if (hp < 0.45 && this.potionCd <= 0 && (this.healCd ?? 0) <= 0 && this.inFight()) {
@@ -3111,7 +3117,9 @@ export class TurbzGame {
 			if (this.autoRest) {
 				if (hp >= 0.85) { this.autoRest = false; this.say("Rested. Back to it."); }
 				else {
-					const threats = this.foesNear(save.x, save.y, 220).filter((m) => !m.animal || m.aggro);
+					const threats = this.foesNear(save.x, save.y, 420).filter((m) => m.aggro || (!m.animal && Math.hypot(m.x - save.x, m.y - save.y) < 220));
+					// Being hit with nothing to run from (a shot from far off, a ghost): stop resting and answer it.
+					if (!threats.length && this.combat > 1.5 && (this.hurt ?? 0) > 0.2) { this.autoRest = false; return false; }
 					if (threats.length) {
 						// Run from the middle of the pack, not just the nearest foe. Cornered, it turns and fights.
 						const cx = threats.reduce((n, m) => n + m.x, 0) / threats.length, cy = threats.reduce((n, m) => n + m.y, 0) / threats.length;
@@ -9950,7 +9958,7 @@ export class TurbzGame {
 	/** The verse catalog only changes when ranks change, so it keeps one identity between updates. */
 	cachedAbilities() {
 		const ranks = this.save?.abilityRanks ?? {};
-		const key = `${JSON.stringify(ranks)}|${this.chan("reach")}|${this.chan("swift")}|${this.chan("focus")}`;
+		const key = `${JSON.stringify(ranks)}|${this.chan("reach")}|${this.chan("swift")}|${this.chan("focus")}|${JSON.stringify(getCryingConfig())}`;
 		if (this.abilityKey !== key || !this.abilityCache) {
 			this.abilityKey = key;
 			this.abilityCache = [...MOVES, ...AURA_LIST].map((m) => {

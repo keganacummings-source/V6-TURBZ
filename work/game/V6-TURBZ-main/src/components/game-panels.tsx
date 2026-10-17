@@ -158,7 +158,7 @@ export const VersesPanel = memo(function VersesPanel({ game }: GameProp) {
       .filter((m) => shapes.every((id) => SHAPES.find((x) => x.id === id)!.has(m)))
       .filter((m) => source === "any" || (source === "mine" ? (m.cls === myClass || CLASS_BY_ID[myClass as ClassId]?.starterMoves.includes(m.id)) : source === "signature" ? !!m.cls : !!m.fx))
       .filter((m) => !f || m.name.toLowerCase().includes(f) || m.effect.includes(f) || m.about.toLowerCase().includes(f))
-      .sort((a, b) => sort === "name" ? dir * -a.name.localeCompare(b.name) : sort === "type" ? a.type.localeCompare(b.type) || a.name.localeCompare(b.name) : dir * (num(b) - num(a)) || a.name.localeCompare(b.name));
+      .sort((a, b) => sort === "name" ? (desc ? 1 : -1) * a.name.localeCompare(b.name) : sort === "type" ? (desc ? 1 : -1) * (a.type.localeCompare(b.type) || a.name.localeCompare(b.name)) : !desc && (!!a.aura !== !!b.aura) ? (a.aura ? 1 : -1) : dir * (num(b) - num(a)) || a.name.localeCompare(b.name));
   }, [s.abilities, filter, type, sort, show, roles, effects, shapes, source, desc, myClass]);
   const filtersOn = roles.length + effects.length + shapes.length + (source !== "any" ? 1 : 0) + (type !== "all" ? 1 : 0) + (show !== "all" ? 1 : 0) + (filter ? 1 : 0);
   return (
@@ -239,7 +239,7 @@ export const VersesPanel = memo(function VersesPanel({ game }: GameProp) {
               <option value="acc">By accuracy</option>
               <option value="crit">By crit</option>
             </select>
-            <button type="button" className="px-btn ui-btn-sm" data-testid="verse-sort-dir" onClick={() => setDesc(!desc)} title="Flip the order">{desc ? "▼ High first" : "▲ Low first"}</button>
+            <button type="button" className="px-btn ui-btn-sm" data-testid="verse-sort-dir" onClick={() => setDesc(!desc)} title="Flip the order">{sort === "name" || sort === "type" ? (desc ? "A → Z" : "Z → A") : desc ? "▼ High first" : "▲ Low first"}</button>
             <button type="button" className="px-btn ui-btn-sm" data-testid="verse-filter-reset" disabled={!filtersOn} onClick={() => { setRoles([]); setEffects([]); setShapes([]); setSource("any"); setType("all"); setShow("all"); setFilter(""); }}>Reset {filtersOn || ""}</button>
           </div>
           <Chips value={source} onChange={setSource} label="Source" options={[{ id: "any", label: "Every verse" }, { id: "mine", label: "My class" }, { id: "signature", label: "★ Signature batch" }, { id: "starfall", label: "✦ Starfall" }]} />
@@ -247,7 +247,7 @@ export const VersesPanel = memo(function VersesPanel({ game }: GameProp) {
           <ToggleRow label="EFFECT" testid="verse-effect" value={effects} onChange={setEffects} options={EFFECTS_V.map((e) => [e, e] as const)} />
           <ToggleRow label="SHAPE" testid="verse-shape" value={shapes} onChange={setShapes} options={SHAPES.map((x) => [x.id, x.label] as const)} />
           <p className="text-dim" data-testid="verse-count">{catalog.length} of {s.abilities.length} verses</p>
-          <Chips value={show} onChange={setShow} options={[{ id: "all", label: "All" }, { id: "owned", label: "Unlocked" }, { id: "locked", label: "Locked" }, { id: "aura", label: "Auras" }, { id: "new", label: "✦ Starfall" }]} />
+          <Chips value={show} onChange={setShow} options={[{ id: "all", label: "All" }, { id: "owned", label: "Unlocked" }, { id: "locked", label: "Locked" }, { id: "aura", label: "Auras" }]} />
           <Chips value={type} onChange={setType} label="Element" options={[{ id: "all" as const, label: "Any element" }, ...(Object.keys(TYPES) as TypeId[]).map((t) => ({ id: t, label: <span className={typeClass(t)}>{TYPES[t].name}</span> }))]} />
           <div className="ui-grid" style={{ "--min": "240px" } as React.CSSProperties}>
             {catalog.map((m) => (

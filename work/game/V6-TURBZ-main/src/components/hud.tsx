@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Backpack, Compass, FlaskConical, Ghost, Map as MapIcon, Menu, ScrollText, Store, Swords, Tent, User, Shield } from "lucide-react";
 import { TYPES } from "@/game/content";
 import type { TurbzGame } from "@/game/engine";
@@ -319,10 +320,11 @@ function GimmickSlot({ game, g }: { game: TurbzGame | null; g: GimmickView }) {
         {cooling && (<><span className="hot-cd" style={{ height: `${pct}%` }} /><span className="hot-cd-num">{g.cd.toFixed(g.cd < 1 ? 1 : 0)}</span></>)}
       </button>
       {g.id === "bossform" && (
-        <button type="button" className="px-btn ui-btn-sm gim-cat-btn" data-testid="boss-catalog-btn" onClick={() => setOpen(!open)}>Skins {g.catalog.length}</button>
+        <button type="button" className="gim-cat-btn" data-testid="boss-catalog-btn" title="Trophy catalog: pick a boss skin" onClick={() => setOpen(!open)}>SKINS {g.catalog.length}</button>
       )}
-      {open && g.id === "bossform" && (
+      {open && g.id === "bossform" && createPortal(
         <div className="px-panel gim-catalog" data-testid="boss-catalog">
+          <button type="button" className="px-btn ui-btn-sm" data-testid="boss-catalog-close" onClick={() => setOpen(false)}>Close</button>
           <p className="font-display text-[9px] text-kyo">TROPHY CATALOG</p>
           {g.catalog.length === 0 && <p className="text-dim">Slay a boss to take its skin.</p>}
           {g.catalog.map((b) => (
@@ -330,7 +332,7 @@ function GimmickSlot({ game, g }: { game: TurbzGame | null; g: GimmickView }) {
               {b.name} · Lv {b.level}
             </button>
           ))}
-        </div>
+        </div>, document.body,
       )}
     </span>
   );

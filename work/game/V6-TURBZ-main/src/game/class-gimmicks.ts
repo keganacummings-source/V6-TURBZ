@@ -83,12 +83,13 @@ export class Gimmicks {
     const d = this.def();
     const save = this.g.save;
     if (!d || !save || this.g.dead) return false;
-    if (this.t > 0 && FORM_KINDS.has(d.id)) { this.end(); return true; }
+    if (this.t > 0 && FORM_KINDS.has(d.id)) { this.cd = Math.min(this.cd, this.cdMax); this.end(); return true; }
     if (this.cd > 0) { this.say(`${d.name} ${Math.ceil(this.cd)}s`, "#9a8a7a"); return false; }
     this.data = { aim: aim ?? null };
     const at = this.mouse();
     const haste = Math.min(0.5, (this.hook("gimmickHaste") + this.chan("gimmick_haste")) / 100);
     let dur = d.dur * (1 + (this.hook("gimmickTime") + this.chan("afterimage")) / 100);
+    if (d.id === "spiritlead" && !(this.g.activeSpirits?.() ?? []).some((sp: any) => sp.hp > 0)) { this.say("No spirits out to lead (G)", "#c9a6e8"); return false; }
     if (d.id === "bossform") {
       const cat: BossTrophy[] = save.bossCatalog ?? [];
       const pick = cat.find((b) => b.key === save.bossForm) ?? cat[cat.length - 1];
@@ -172,7 +173,7 @@ export class Gimmicks {
   end() {
     const id = this.id;
     this.t = 0;
-    if (id === "cat") { this.pounce = 4; this.say("POUNCE READY", "#c9a6ff"); }
+    if (id === "cat") { this.pounce = 4; this.say("CAT STRIKE READY", "#c9a6ff"); }
     if (id === "oath" && this.data.stored > 0) {
       const me = this.me();
       for (const m of this.foes(me, 120)) this.g.applyMobDamage(m, Math.floor(this.data.stored * 2 * this.power()), true);
@@ -346,7 +347,7 @@ export class Gimmicks {
     if (this.active("bossform")) k *= 1.35 + (this.data.boss?.level ?? 0) * 0.004;
     if (this.active("banner") && dist(save, this.data.at) < 130) k *= 1.3;
     if (this.active("decree") && this.data.marked?.has(mob.id)) k *= 1.3;
-    if (this.pounce > 0 && !this.inGim) { k *= 2; this.pounce = 0; this.g.float(mob.x, mob.y - 52, "POUNCE", "#c9a6ff"); }
+    if (this.pounce > 0 && !this.inGim) { k *= 2; this.pounce = 0; this.g.float(mob.x, mob.y - 52, "CAT STRIKE ×2", "#c9a6ff"); }
     return k;
   }
   onHit(mob: any, dmg: number, crit: boolean) {

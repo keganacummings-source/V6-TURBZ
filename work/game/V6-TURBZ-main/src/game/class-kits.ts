@@ -260,6 +260,7 @@ export const KIT_MOVES: KitMove[] = [
   x("cryinggirl", "ck_sorrowmend", "Sorrow Mend", "water", 36, 100, 0, 2, "mend", "heal", "Crying it out. It helps."),
   x("cryinggirl", "ck_puddlestep", "Puddle Step", "water", 10, 100, 8, 3, "soak", "blink", "Sink into a puddle and come up somewhere else.", { form: "spell", react: "move", fail: 14 }),
   x("cryinggirl", "sx_monsoon", "Monsoon", "water", 22, 98, 8, 1, "soak", "channel", "The sky cries with her: five falling waves.", { form: "spell", multi: { hits: 5, gap: 0.2, mult: 0.55 }, splash: { radius: 70, mult: 0.5 }, fx: "barrage" }),
+  x("cryinggirl", "sx_weepingblade", "Weeping Blade", "water", 26, 98, 16, 2, "soak", "strike", "A blade of tears: three quick cuts, then she weeps again.", { form: "melee", reach: 52, multi: { hits: 3, gap: 0.12, mult: 0.7 } }),
   x("cryinggirl", "sx_heartbreak", "Heartbreak", "water", 66, 86, 18, 0, "gloom", "heavy", "Everything she held in, all at once.", { form: "spell", nova: 80, echo: 0.5, fx: "bloom" }),
 ];
 
