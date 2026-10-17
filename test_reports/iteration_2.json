@@ -1,0 +1,30 @@
+{
+  "summary": "Retest of the iteration_1 fixes (frontend only) on the static build at the public preview URL, 1920x1080, using Playwright plus window.__turbz. The build is up to date: no src file is newer than dist-static. ALL 6 FIXES PASS. FIX1: the 'SKINS N' button sits inside the R slot and the hotbar height is 88px, the same as Warden. The boss-catalog is a direct child of BODY with position fixed and z-index 9999. Close works. After a forced boss kill the button shows SKINS 1, elementFromPoint at boss-form-tboss returns the button itself, a real (non-forced) click sets save.bossForm='tboss', and the catalog closes. FIX2: Crying Girl now has 7 verses (Weeping Blade added). Fire+melee: all 7 are fire, and the attack verses (Tear Lance, Sob Wave, Monsoon, Weeping Blade, Heartbreak) take melee form while Sorrow Mend and Puddle Step keep their own forms. The hotbar shows the hot-fire class on all 7. Electric+ranged: all electric, attacks ranged. Water+mixed: the original forms are back (Weeping Blade melee, the rest spell). FIX3: two 30s autoplay runs (Pyromancer level 1 to 5, Warden level 1 to 6) never stood still in a 'resting' state while losing HP and had no deaths. Simulated case: while resting with no foe within 420px and being hit (combat=3, hurt=1), autoplay leaves 'resting' within 1.5s (grind=combat, autoRest=false). A 5s sleep was mashed off in about 1.8s. FIX4: Spirit Caller R with 0 spirits floats 'No spirits out to lead (G)', and cd stays 0 and active stays false. FIX5: leaving cat form early with R sets cd to 17.9, below cdMax 18 (it was 28.5 while in form). The passive text says 'deals double damage'. dealMult gives 2 on the first hit, then 1, with the float 'CAT STRIKE ×2'. The perk is shown as 'Ambush'. FIX6: there is a single '✦ Starfall' chip. The name sort shows 'A → Z' (ascending, checked) and flips to 'Z → A' and reverses the list. The element sort flip also reverses. Ascending power, dps, reach, cd and acc sorts all put the 16 auras at the end. REGRESSION OK: Nightblade cat speedMult is 1.13 to 4.52 (exactly 4x). Phasewalker double-click teleports, and a second double-click during the cooldown is refused with 'Rift 2.1s'. transform+melee filter gives [nightblade, bloodrager], and Any style restores 30 cards. The perk builder (87 perks) stops at 4/4 and disables the other 83. No page errors in any run.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "applyCry (classes.ts) ranged style", "issue": "With the ranged style, Weeping Blade (base form melee, reach 52) becomes form 'ranged' but keeps reach 52. That is a ranged attack with melee reach. Use a ranged default reach (for example the base reach or ~90+) when converting a melee base to ranged.", "selector": "[data-testid='cry-style-ranged']", "priority": "LOW"},
+      {"component": "applyCry melee style", "issue": "With the melee style, Monsoon (channel) keeps fx 'barrage' and its splash, because fx is only cleared for moves with nova. The visuals may not match a melee form. Cosmetic.", "selector": "[data-testid='cry-style-melee']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Boss catalog popup", "issues": ["It is placed at a fixed bottom:190px in the center of the screen, not next to the R slot. It works at 1920x1080, but tablet and mobile sizes were not checked."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Optional: in applyCry, give melee-based verses a ranged reach when the ranged style is chosen (Weeping Blade keeps reach 52).",
+    "Optional: check the boss-catalog position on tablet (768x1024) and mobile viewports."
+  ],
+  "critical_code_review_comments": [
+    "class-gimmicks.ts:92: the spiritlead guard checks sp.hp > 0 on save.spirits entries, while the effect at line 227 iterates this.g.mates. If a saved spirit has no hp field, or a mate is dead but still in save, the guard and the effect can disagree. Consider checking this.g.mates instead.",
+    "engine.ts autoCare: when HP is below 40% and the player is hit from out of range, autoRest is set to true and cleared again every frame. It works, but the logic is implicit. A short 'answer' timer would make it clearer.",
+    "game-panels.tsx: the 'desc' state means ascending for the name and type sorts but descending for numeric sorts. The labels are right, but the naming makes it easy to break."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% of the requested fixes and regressions"},
+  "seed_data_creation": "Boss trophy injected in the session through window.__turbz.gim.onKill({boss:true,bossId:'tboss',name:'Test Tyrant',level:9}). Nothing persisted server-side apart from the mock.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Same setup: /app/work/game/V6-TURBZ-main, dist-static served on :3000 and the mock on :8001. Flow: TurboHunt -> New hunt -> class-card-<id> (Phasewalker is class-card-voidwalker) -> create-go-btn -> Escape -> click 'Combat auto' to turn it to manual. Useful engine handles: __turbz.arsenal(__turbz.save) for the equipped move objects, __turbz.speedMult() (playerSpeed() is not the movement speed), __turbz.gim.view(), __turbz.gim.dealMult(mob), __turbz.floats[].text. The Verses library tab is reached with get_by_text('Library ·'), and the sort control is select[aria-label='Sort verses']. Style filter chips are a single-choice group; use 'Any style' to clear."
+}

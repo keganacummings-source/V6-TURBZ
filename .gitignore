@@ -84,3 +84,9 @@ android-sdk/
 # overlay black-box crash/user-report dumps — session data, never history
 **/.emergent/recordings/
 work/game/V6-TURBZ-main/node_modules/@cloudflare/workerd-linux-arm64/bin/workerd
+.env
+.env.*
+*.env
+credentials.json
+*.key
+.credentials
